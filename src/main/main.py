@@ -8,6 +8,7 @@ import yaml
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from services.AirPurifierService import AirPurifierService
+from services.Service import Publisher
 
 ROOT = os.environ.get('APP_ROOT', ".")
 
@@ -44,11 +45,16 @@ with open(CONFIGURATION, 'r') as f:
 ########################################################################################################################
 # core logic
 
+client = mqtt.Client()
+publisher = Publisher(client)
+client.username_pw_set(MQTT_USER, MQTT_PASS)
+
+client.connect(MQTT_HOST, MQTT_PORT)
 
 scheduler = BackgroundScheduler(timezone="Europe/Warsaw")
 
 SERVICES = [
-    AirPurifierService(SERVICES_CONFIG['air-purifier'], scheduler)
+    AirPurifierService(SERVICES_CONFIG['air-purifier'], scheduler, publisher)
 ]
 
 LOGGER.info('All created services:')
@@ -56,6 +62,7 @@ for service in SERVICES:
     LOGGER.info(' - %s' % str(service))
 
 scheduler.start()
+
 
 def on_connect(client, userdata, flags, rc):
     LOGGER.info("Connected with result code %s" % str(rc))
@@ -66,15 +73,10 @@ def on_message(client, userdata, msg):
     topic = msg.topic
     payload = msg.payload.decode(encoding='UTF-8')
     for service in SERVICES:
-        if any(topic.startswith(prefix) for prefix in service.accepts_prefixes()):
-            service.on_message(topic, payload)
+        service.accept_message(topic, payload)
 
 
-client = mqtt.Client()
-client.username_pw_set(MQTT_USER, MQTT_PASS)
 client.on_connect = on_connect
 client.on_message = on_message
-
-client.connect(MQTT_HOST, MQTT_PORT)
 
 client.loop_forever()

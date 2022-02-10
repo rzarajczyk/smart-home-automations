@@ -1,6 +1,14 @@
-class Service:
-    def accepts_prefixes(self) -> list[str]:
-        return []
+from paho.mqtt.client import Client
 
-    def on_message(self, topic, payload):
+
+class Publisher:
+    def __init__(self, client: Client):
+        self.client = client
+
+    def publish(self, topic, payload):
+        self.client.publish(topic, payload)
+
+
+class Service:
+    def accept_message(self, topic, payload):
         pass

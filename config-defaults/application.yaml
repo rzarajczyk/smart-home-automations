@@ -8,3 +8,16 @@ services:
   air-purifier:
     type: air-purifier
     recalculate-interval-seconds: 10
+    moving-average-window-size: 6
+    hysteresis: 5
+    thresholds:
+      - value: 0
+        speed: 'off'
+      - value: 10
+        speed: 'silent'
+      - value: 20
+        speed: 4
+      - value: 30
+        speed: 10
+      - value: 50
+        speed: 16
