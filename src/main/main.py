@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+import time
 from logging import config as logging_config
 
 import paho.mqtt.client as mqtt
@@ -40,6 +41,14 @@ with open(CONFIGURATION, 'r') as f:
     MQTT_USER = config['mqtt']['user']
     MQTT_PASS = config['mqtt']['password']
 
+    MQTT_SETTINGS = {
+        'MQTT_BROKER': config['mqtt']['host'],
+        'MQTT_PORT': config['mqtt']['port'],
+        'MQTT_USERNAME': config['mqtt']['user'],
+        'MQTT_PASSWORD': config['mqtt']['password'],
+        'MQTT_SHARE_CLIENT': True
+    }
+
     SERVICES_CONFIG = config['services']
 
 ########################################################################################################################
@@ -54,7 +63,7 @@ client.connect(MQTT_HOST, MQTT_PORT)
 scheduler = BackgroundScheduler(timezone="Europe/Warsaw")
 
 SERVICES = [
-    AirPurifierService(SERVICES_CONFIG['air-purifier'], scheduler, publisher)
+    AirPurifierService(MQTT_SETTINGS, SERVICES_CONFIG['air-purifier'], scheduler, publisher)
 ]
 
 LOGGER.info('All created services:')
@@ -80,3 +89,4 @@ client.on_connect = on_connect
 client.on_message = on_message
 
 client.loop_forever()
+# time.sleep(10000)

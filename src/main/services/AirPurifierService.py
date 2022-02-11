@@ -2,11 +2,14 @@ import logging
 
 from apscheduler.schedulers.base import BaseScheduler
 
+from homie_helpers import PropertyType
+from homie_helpers import add_property
 from services.Service import Service, Publisher
 
 
 class AirPurifierService(Service):
-    def __init__(self, config, scheduler: BaseScheduler, publisher: Publisher):
+    def __init__(self, mqtt_settings, config, scheduler: BaseScheduler, publisher: Publisher):
+        super().__init__("air-purifier-service", "AirPurifier Service", mqtt_settings)
         self.publisher = publisher
         self.logger = logging.getLogger("AirPurifierService")
         self.history_size = config['moving-average-window-size']
@@ -15,11 +18,16 @@ class AirPurifierService(Service):
 
         self.history = []
         self.current_threshold = 0
-        self.automation = True
+        self.is_enabled = True
         self.pm25 = 0
         self.monitor_is_on = False
         self.current_speed = None
+
+        self.property_enabled = add_property(self, PropertyType.IS_ENABLED, set_handler=self.set_enabled)
+
+        self.start()
         scheduler.add_job(self.recalculate, 'interval', seconds=config['recalculate-interval-seconds'])
+        self.property_enabled.value = True
 
     def accept_message(self, topic, payload):
         if topic == 'homie/xiaomi-air-monitor/status/ison':
@@ -33,7 +41,8 @@ class AirPurifierService(Service):
             self.logger.debug("Message received: %-70s | %s" % (topic, payload))
 
     def recalculate(self):
-        if self.automation and self.monitor_is_on:
+        self.property_enabled.value = self.is_enabled
+        if self.is_enabled and self.monitor_is_on:
             self.recalculate_speed()
 
     def recalculate_speed(self):
@@ -53,6 +62,10 @@ class AirPurifierService(Service):
         if speed != self.current_speed:
             self.logger.info("Setting new speed to %s" % speed)
             self.publisher.publish('homie/xiaomi-air-purifier/speed/speed/set', speed)
+
+    def set_enabled(self, enabled):
+        self.is_enabled = bool(enabled)
+        self.logger.info("Setting enabled to %s" % self.is_enabled)
 
 
 def calculate_threshold_index(avg, current_threshold, thresholds, hysteresis):
