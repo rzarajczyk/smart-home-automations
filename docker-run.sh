@@ -1,6 +1,6 @@
 #!/bin/bash
 docker run -it --rm  \
-    --name smart-home-services \
-    -v $(pwd)/config:/smart-home-services/config \
-    -v $(pwd)/logs:/smart-home-services/logs \
-    rzarajczyk/smart-home-services:latest
+    --name smart-home-automations \
+    -v $(pwd)/config:/smart-home-automations/config \
+    -v $(pwd)/logs:/smart-home-automations/logs \
+    rzarajczyk/smart-home-automations:latest

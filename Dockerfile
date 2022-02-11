@@ -1,12 +1,12 @@
 FROM python:3
 ENV TZ="Europe/Warsaw"
-ENV APP_ROOT="/smart-home-services"
+ENV APP_ROOT="/smart-home-automations"
 
-RUN mkdir -p /smart-home-services
-RUN mkdir -p /smart-home-services/config
-RUN mkdir -p /smart-home-services/logs
+RUN mkdir -p /smart-home-automations
+RUN mkdir -p /smart-home-automations/config
+RUN mkdir -p /smart-home-automations/logs
 
-WORKDIR /smart-home-services
+WORKDIR /smart-home-automations
 
 COPY . .
 
