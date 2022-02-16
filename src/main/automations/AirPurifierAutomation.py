@@ -4,14 +4,14 @@ from apscheduler.schedulers.base import BaseScheduler
 
 from homie_helpers import PropertyType
 from homie_helpers import add_property
-from services.Service import Service, Publisher
+from automations.Automation import Automation, Publisher
 
 
-class AirPurifierService(Service):
+class AirPurifierAutomation(Automation):
     def __init__(self, mqtt_settings, config, scheduler: BaseScheduler, publisher: Publisher):
-        super().__init__("air-purifier-service", "AirPurifier Service", mqtt_settings)
+        super().__init__("air-purifier-automation", "AirPurifier Automation", mqtt_settings)
         self.publisher = publisher
-        self.logger = logging.getLogger("AirPurifierService")
+        self.logger = logging.getLogger("AirPurifierAutomation")
         self.history_size = config['moving-average-window-size']
         self.hysteresis = config['hysteresis']
         self.thresholds = config['thresholds']
@@ -26,7 +26,7 @@ class AirPurifierService(Service):
         self.property_enabled = add_property(self, PropertyType.IS_ENABLED, set_handler=self.set_enabled)
 
         self.start()
-        scheduler.add_job(self.recalculate, 'interval', seconds=config['recalculate-interval-seconds'])
+        scheduler.add_job(self.run, 'interval', seconds=config['recalculate-interval-seconds'])
         self.property_enabled.value = True
 
     def accept_message(self, topic, payload):
@@ -40,7 +40,7 @@ class AirPurifierService(Service):
             self.current_speed = payload
             self.logger.debug("Message received: %-70s | %s" % (topic, payload))
 
-    def recalculate(self):
+    def run(self):
         self.property_enabled.value = self.is_enabled
         if self.is_enabled and self.monitor_is_on:
             self.recalculate_speed()

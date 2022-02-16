@@ -8,8 +8,9 @@ import paho.mqtt.client as mqtt
 import yaml
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from services.AirPurifierService import AirPurifierService
-from services.Service import Publisher
+from automations.AirHumidifierAutomation import AirHumidifierAutomation
+from automations.AirPurifierAutomation import AirPurifierAutomation
+from automations.Automation import Publisher
 
 ROOT = os.environ.get('APP_ROOT', ".")
 
@@ -62,13 +63,14 @@ client.connect(MQTT_HOST, MQTT_PORT)
 
 scheduler = BackgroundScheduler(timezone="Europe/Warsaw")
 
-SERVICES = [
-    AirPurifierService(MQTT_SETTINGS, SERVICES_CONFIG['air-purifier'], scheduler, publisher)
+AUTOMATIONS = [
+    AirPurifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-purifier'], scheduler, publisher),
+    AirHumidifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-humidifier'], scheduler, publisher)
 ]
 
 LOGGER.info('All created services:')
-for service in SERVICES:
-    LOGGER.info(' - %s' % str(service))
+for automation in AUTOMATIONS:
+    LOGGER.info(' - %s' % str(automation))
 
 scheduler.start()
 
@@ -81,7 +83,7 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     topic = msg.topic
     payload = msg.payload.decode(encoding='UTF-8')
-    for service in SERVICES:
+    for service in AUTOMATIONS:
         service.accept_message(topic, payload)
 
 

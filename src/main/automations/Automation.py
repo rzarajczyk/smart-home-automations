@@ -10,7 +10,7 @@ class Publisher:
         self.client.publish(topic, payload)
 
 
-class Service(Device_Base):
+class Automation(Device_Base):
     def __init__(self, device_id, name, mqtt_settings):
         super().__init__(device_id=device_id, name=name, mqtt_settings=mqtt_settings)
 
