@@ -13,7 +13,6 @@ class AirHumidifierAutomation(Automation):
         super().__init__("air-humidifier-automation", "Air Humidifier Automation", mqtt_settings)
         self.publisher = publisher
         self.logger = logging.getLogger("AirHumidifierAutomation")
-        self.shutdown_schedule = config['shutdown-schedule']
 
         self.is_enabled = True
         self.speed = None
