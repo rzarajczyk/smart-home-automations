@@ -1,7 +1,6 @@
 import logging
 import os
 import shutil
-import time
 from logging import config as logging_config
 
 import paho.mqtt.client as mqtt
@@ -11,6 +10,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from automations.AirHumidifierAutomation import AirHumidifierAutomation
 from automations.AirPurifierAutomation import AirPurifierAutomation
 from automations.Automation import Publisher
+from automations.TvVolumeAutomation import TvVolumeAutomation
 
 ROOT = os.environ.get('APP_ROOT', ".")
 
@@ -65,7 +65,8 @@ scheduler = BackgroundScheduler(timezone="Europe/Warsaw")
 
 AUTOMATIONS = [
     AirPurifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-purifier'], scheduler, publisher),
-    AirHumidifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-humidifier'], scheduler, publisher)
+    AirHumidifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-humidifier'], scheduler, publisher),
+    TvVolumeAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-volume'], scheduler, publisher)
 ]
 
 LOGGER.info('All created services:')
