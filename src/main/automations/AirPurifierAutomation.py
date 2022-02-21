@@ -2,9 +2,8 @@ import logging
 
 from apscheduler.schedulers.base import BaseScheduler
 
-from homie_helpers import PropertyType
-from homie_helpers import add_property
 from automations.Automation import Automation, Publisher
+from homie_helpers import add_property_boolean, add_property_int, add_property_string
 
 
 class AirPurifierAutomation(Automation):
@@ -23,7 +22,21 @@ class AirPurifierAutomation(Automation):
         self.monitor_is_on = False
         self.current_speed = None
 
-        self.property_enabled = add_property(self, PropertyType.IS_ENABLED, set_handler=self.set_enabled)
+        self.property_enabled = add_property_boolean(self, "enabled",
+                                                     property_name="Service is enabled",
+                                                     parent_node_id="service",
+                                                     set_handler=self.set_enabled)
+
+        add_property_int(self, "interval",
+                         parent_node_id="config",
+                         unit="s").value = config['recalculate-interval-seconds']
+        add_property_int(self, "hysteresis", parent_node_id="config").value = self.hysteresis
+        add_property_int(self, "history-size", parent_node_id="config").value = self.history_size
+        add_property_string(self, "threshold-levels", parent_node_id="config").value = \
+            str([t['value'] for t in self.thresholds])
+        add_property_string(self, "threshold-speeds", parent_node_id="config").value = \
+            str([t['speed'] for t in self.thresholds])
+        self.property_history = add_property_string(self, "known-history", parent_node_id="service")
 
         self.start()
         scheduler.add_job(self.run, 'interval', seconds=config['recalculate-interval-seconds'])
@@ -31,19 +44,23 @@ class AirPurifierAutomation(Automation):
 
     def accept_message(self, topic, payload):
         if topic == 'homie/xiaomi-air-monitor/status/ison':
+            self.logger.debug("Message received: %-70s | %s" % (topic, payload))
             self.monitor_is_on = bool(payload)
-            self.logger.debug("Message received: %-70s | %s" % (topic, payload))
         if topic == 'homie/xiaomi-air-monitor/status/pm25':
+            self.logger.debug("Message received: %-70s | %s" % (topic, payload))
             self.pm25 = int(payload)
-            self.logger.debug("Message received: %-70s | %s" % (topic, payload))
         if topic == 'homie/xiaomi-air-purifier/speed/speed':
-            self.current_speed = payload
             self.logger.debug("Message received: %-70s | %s" % (topic, payload))
+            self.current_speed = payload
 
     def run(self):
         self.property_enabled.value = self.is_enabled
+        self.property_history.value = str(self.history)
         if self.is_enabled and self.monitor_is_on:
             self.recalculate_speed()
+        else:
+            self.logger.info("Skipping AirPurifier recalculation - self.is_enabled = %s, monitor_is_on = %s" % (
+                self.is_enabled, self.monitor_is_on))
 
     def recalculate_speed(self):
         self.history.append(self.pm25)
@@ -64,8 +81,8 @@ class AirPurifierAutomation(Automation):
             self.publisher.publish('homie/xiaomi-air-purifier/speed/speed/set', speed)
 
     def set_enabled(self, enabled):
-        self.is_enabled = bool(enabled)
         self.logger.info("Setting enabled to %s" % self.is_enabled)
+        self.is_enabled = bool(enabled)
 
 
 def calculate_threshold_index(avg, current_threshold, thresholds, hysteresis):
