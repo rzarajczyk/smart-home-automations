@@ -10,6 +10,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from automations.AirHumidifierAutomation import AirHumidifierAutomation
 from automations.AirPurifierAutomation import AirPurifierAutomation
 from automations.Automation import Publisher
+from automations.TvRebootAutomation import TvRebootAutomation
+from automations.TvTimeToSleepAutomation import TvTimeToSleepAutomation
 from automations.TvVolumeAutomation import TvVolumeAutomation
 
 ROOT = os.environ.get('APP_ROOT', ".")
@@ -66,7 +68,9 @@ scheduler = BackgroundScheduler(timezone="Europe/Warsaw")
 AUTOMATIONS = [
     AirPurifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-purifier'], scheduler, publisher),
     AirHumidifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-humidifier'], scheduler, publisher),
-    TvVolumeAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-volume'], scheduler, publisher)
+    TvVolumeAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-volume'], scheduler, publisher),
+    TvTimeToSleepAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-time-to-sleep'], scheduler, publisher),
+    TvRebootAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-reboot'], scheduler, publisher)
 ]
 
 LOGGER.info('All created services:')
