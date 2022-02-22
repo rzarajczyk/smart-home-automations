@@ -8,7 +8,7 @@ from homie_helpers import add_property_boolean, add_property_int, add_property_s
 
 class AirPurifierAutomation(Automation):
     def __init__(self, mqtt_settings, config, scheduler: BaseScheduler, publisher: Publisher):
-        super().__init__("air-purifier-automation", "AirPurifier Automation", mqtt_settings)
+        super().__init__("air-purifier-automation", "Air Purifier", mqtt_settings)
         self.publisher = publisher
         self.logger = logging.getLogger("AirPurifierAutomation")
         self.history_size = config['moving-average-window-size']
@@ -23,7 +23,6 @@ class AirPurifierAutomation(Automation):
         self.current_speed = None
 
         self.property_enabled = add_property_boolean(self, "enabled",
-                                                     property_name="Service is enabled",
                                                      parent_node_id="service",
                                                      set_handler=self.set_enabled)
 

@@ -9,7 +9,7 @@ from homie_helpers import add_property_boolean, add_property_string
 
 class AirHumidifierAutomation(Automation):
     def __init__(self, mqtt_settings, config, scheduler: BaseScheduler, publisher: Publisher):
-        super().__init__("air-humidifier-automation", "Air Humidifier Automation", mqtt_settings)
+        super().__init__("air-humidifier-automation", "Air Humidifier", mqtt_settings)
         self.publisher = publisher
         self.logger = logging.getLogger("AirHumidifierAutomation")
 
@@ -17,7 +17,6 @@ class AirHumidifierAutomation(Automation):
         self.speed = None
 
         self.property_enabled = add_property_boolean(self, "enabled",
-                                                     property_name="Service is enabled",
                                                      parent_node_id="service",
                                                      set_handler=self.set_enabled)
 

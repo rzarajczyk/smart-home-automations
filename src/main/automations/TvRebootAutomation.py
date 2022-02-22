@@ -9,7 +9,7 @@ from homie_helpers import add_property_boolean, add_property_string
 
 class TvRebootAutomation(Automation):
     def __init__(self, mqtt_settings, config, scheduler: BaseScheduler, publisher: Publisher):
-        super().__init__("tv-reboot-automation", "TV Reboot Automation", mqtt_settings)
+        super().__init__("tv-reboot-automation", "TV Reboot", mqtt_settings)
         self.publisher = publisher
         self.logger = logging.getLogger("TvRebootAutomation")
 

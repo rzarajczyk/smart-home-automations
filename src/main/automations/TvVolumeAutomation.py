@@ -8,7 +8,7 @@ from homie_helpers import add_property_boolean, add_property_int
 
 class TvVolumeAutomation(Automation):
     def __init__(self, mqtt_settings, config, scheduler: BaseScheduler, publisher: Publisher):
-        super().__init__("tv-volume-automation", "TV Volume Automation", mqtt_settings)
+        super().__init__("tv-volume-automation", "TV Volume Protection", mqtt_settings)
         self.publisher = publisher
         self.logger = logging.getLogger("TvVolumeAutomation")
         self.max_volume = config['max-volume-level']

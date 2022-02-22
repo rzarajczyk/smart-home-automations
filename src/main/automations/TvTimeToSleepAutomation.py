@@ -9,7 +9,7 @@ from homie_helpers import add_property_boolean, add_property_string
 
 class TvTimeToSleepAutomation(Automation):
     def __init__(self, mqtt_settings, config, scheduler: BaseScheduler, publisher: Publisher):
-        super().__init__("tv-time-to-sleep-automation", "TV Time-To-Sleep Automation", mqtt_settings)
+        super().__init__("tv-time-to-sleep-automation", "TV Time to sleep", mqtt_settings)
         self.publisher = publisher
         self.logger = logging.getLogger("TvTimeToSleepAutomation")
 
@@ -19,7 +19,6 @@ class TvTimeToSleepAutomation(Automation):
         self.tv_is_on = False
 
         self.property_enabled = add_property_boolean(self, "enabled",
-                                                     property_name="Service is enabled",
                                                      parent_node_id="service",
                                                      set_handler=self.set_enabled)
 
