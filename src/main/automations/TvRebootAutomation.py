@@ -16,7 +16,6 @@ class TvRebootAutomation(Automation):
         self.is_enabled = True
 
         self.property_enabled = add_property_boolean(self, "enabled",
-                                                     property_name="Service is enabled",
                                                      parent_node_id="service",
                                                      set_handler=self.set_enabled)
         add_property_string(self, "schedule", parent_node_id="config").value = config['schedule']

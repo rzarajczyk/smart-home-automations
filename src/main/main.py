@@ -10,6 +10,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from automations.AirHumidifierAutomation import AirHumidifierAutomation
 from automations.AirPurifierAutomation import AirPurifierAutomation
 from automations.Automation import Publisher
+from automations.EveningLightsAutomation import EveningLightsAutomation
+from automations.NightLightsAutomation import NightLightsAutomation
 from automations.TvRebootAutomation import TvRebootAutomation
 from automations.TvTimeToSleepAutomation import TvTimeToSleepAutomation
 from automations.TvVolumeAutomation import TvVolumeAutomation
@@ -70,7 +72,9 @@ AUTOMATIONS = [
     AirHumidifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-humidifier'], scheduler, publisher),
     TvVolumeAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-volume'], scheduler, publisher),
     TvTimeToSleepAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-time-to-sleep'], scheduler, publisher),
-    TvRebootAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-reboot'], scheduler, publisher)
+    TvRebootAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-reboot'], scheduler, publisher),
+    EveningLightsAutomation(MQTT_SETTINGS, SERVICES_CONFIG['evening-lights'], scheduler, publisher),
+    NightLightsAutomation(MQTT_SETTINGS, SERVICES_CONFIG['night-lights'], scheduler, publisher),
 ]
 
 LOGGER.info('All created services:')
