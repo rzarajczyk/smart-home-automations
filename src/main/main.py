@@ -64,7 +64,7 @@ AUTOMATIONS = []
 
 for key in CLASSES:
     if key in SERVICES_CONFIG:
-        automation_class = SERVICES_CONFIG[key]
+        automation_class = CLASSES[key]
         AUTOMATIONS.append(automation_class(MQTT_SETTINGS, SERVICES_CONFIG[key], scheduler, publisher))
 
 # AUTOMATIONS = [
