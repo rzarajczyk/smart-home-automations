@@ -35,7 +35,6 @@ class NightLightsAutomation(Automation):
                              retained=False,
                              set_handler=self.run_off_now)
 
-        self.start()
         scheduler.add_job(self.run_on, CronTrigger.from_crontab(config['on-schedule']))
         scheduler.add_job(self.run_off, CronTrigger.from_crontab(config['off-schedule']))
         self.property_enabled.value = True

@@ -1,5 +1,3 @@
-import logging
-
 from apscheduler.schedulers.base import BaseScheduler
 from apscheduler.triggers.cron import CronTrigger
 
@@ -11,17 +9,15 @@ class TvTimeToSleepAutomation(Automation):
     def __init__(self, mqtt_settings, config, scheduler: BaseScheduler, publisher: Publisher):
         super().__init__("tv-time-to-sleep-automation", "TV Time to sleep", mqtt_settings)
         self.publisher = publisher
-        self.logger = logging.getLogger("TvTimeToSleepAutomation")
 
         self.url = config['image-url']
 
         self.is_enabled = True
-        self.tv_is_on = False
+        self.tv_is_on = self.mqtt_collect('homie/sony-bravia/power/power-status', lambda value: value == 'active')
 
         self.property_enabled = add_property_boolean(self, "enabled",
                                                      parent_node_id="service",
                                                      set_handler=self.set_enabled)
-
         add_property_boolean(self, "run",
                              property_name="Run now",
                              parent_node_id="service",
@@ -29,15 +25,9 @@ class TvTimeToSleepAutomation(Automation):
                              set_handler=self.run_now)
         add_property_string(self, "schedule", parent_node_id="config").value = config['schedule']
         add_property_string(self, "url", parent_node_id="config").value = config['image-url']
-
-        self.start()
-        scheduler.add_job(self.run, CronTrigger.from_crontab(config['schedule']))
         self.property_enabled.value = True
 
-    def accept_message(self, topic, payload):
-        if topic == 'homie/sony-bravia/power/power-status':
-            self.logger.debug("Message received: %-70s | %s" % (topic, payload))
-            self.tv_is_on = payload == 'active'
+        scheduler.add_job(self.run, CronTrigger.from_crontab(config['schedule'], "Europe/Warsaw"))
 
     def run(self):
         self.property_enabled.value = self.is_enabled

@@ -1,5 +1,3 @@
-import logging
-
 from apscheduler.schedulers.base import BaseScheduler
 from apscheduler.triggers.cron import CronTrigger
 
@@ -11,7 +9,6 @@ class TvRebootAutomation(Automation):
     def __init__(self, mqtt_settings, config, scheduler: BaseScheduler, publisher: Publisher):
         super().__init__("tv-reboot-automation", "TV Reboot", mqtt_settings)
         self.publisher = publisher
-        self.logger = logging.getLogger("TvRebootAutomation")
 
         self.is_enabled = True
 
@@ -24,10 +21,9 @@ class TvRebootAutomation(Automation):
                              parent_node_id="service",
                              retained=False,
                              set_handler=self.run_now)
-
-        self.start()
-        scheduler.add_job(self.run, CronTrigger.from_crontab(config['schedule']))
         self.property_enabled.value = True
+
+        scheduler.add_job(self.run, CronTrigger.from_crontab(config['schedule'], "Europe/Warsaw"))
 
     def run(self):
         self.property_enabled.value = self.is_enabled

@@ -8,6 +8,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from automations.AirHumidifierAutomation import AirHumidifierAutomation
 from automations.AirPurifierAutomation import AirPurifierAutomation
 from automations.Automation import Publisher
+from automations.EveningLightsAutomation import EveningLightsAutomation
+from automations.NightLightsAutomation import NightLightsAutomation
 from automations.TvRebootAutomation import TvRebootAutomation
 from automations.TvTimeToSleepAutomation import TvTimeToSleepAutomation
 from automations.TvVolumeAutomation import TvVolumeAutomation
@@ -58,7 +60,9 @@ CLASSES = {
     'air-humidifier': AirHumidifierAutomation,
     'tv-volume': TvVolumeAutomation,
     'tv-time-to-sleep': TvTimeToSleepAutomation,
-    'tv-reboot': TvRebootAutomation
+    'tv-reboot': TvRebootAutomation,
+    'evening-lights': EveningLightsAutomation,
+    'night-lights': NightLightsAutomation
 }
 AUTOMATIONS = []
 
@@ -67,15 +71,8 @@ for key in CLASSES:
         automation_class = CLASSES[key]
         AUTOMATIONS.append(automation_class(MQTT_SETTINGS, SERVICES_CONFIG[key], scheduler, publisher))
 
-# AUTOMATIONS = [
-#     AirPurifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-purifier'], scheduler, publisher),
-#     AirHumidifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-humidifier'], scheduler, publisher),
-#     TvVolumeAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-volume'], scheduler, publisher),
-#     TvTimeToSleepAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-time-to-sleep'], scheduler, publisher),
-#     TvRebootAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-reboot'], scheduler, publisher),
-#     # EveningLightsAutomation(MQTT_SETTINGS, SERVICES_CONFIG['evening-lights'], scheduler, publisher),
-#     NightLightsAutomation(MQTT_SETTINGS, SERVICES_CONFIG['night-lights'], scheduler, publisher),
-# ]
+for automation in AUTOMATIONS:
+    automation.start()
 
 LOGGER.info('All created services:')
 for automation in AUTOMATIONS:

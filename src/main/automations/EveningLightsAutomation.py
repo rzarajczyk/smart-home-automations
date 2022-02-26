@@ -38,7 +38,6 @@ class EveningLightsAutomation(Automation):
                              retained=False,
                              set_handler=self.run_now)
 
-        self.start()
         scheduler.add_job(self.run, CronTrigger.from_crontab(config['schedule']))
         self.property_enabled.value = True
 

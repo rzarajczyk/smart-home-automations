@@ -1,5 +1,3 @@
-import logging
-
 from apscheduler.schedulers.base import BaseScheduler
 
 from automations.Automation import Automation, Publisher
@@ -10,11 +8,11 @@ class TvVolumeAutomation(Automation):
     def __init__(self, mqtt_settings, config, scheduler: BaseScheduler, publisher: Publisher):
         super().__init__("tv-volume-automation", "TV Volume Protection", mqtt_settings)
         self.publisher = publisher
-        self.logger = logging.getLogger("TvVolumeAutomation")
+
         self.max_volume = config['max-volume-level']
 
         self.is_enabled = True
-        self.volume = 0
+        self.volume = self.mqtt_collect('homie/sony-bravia/volume/volume-level', int)
 
         self.property_enabled = add_property_boolean(self, "enabled",
                                                      property_name="Service is enabled",
@@ -24,19 +22,13 @@ class TvVolumeAutomation(Automation):
                          parent_node_id="config",
                          unit="s").value = config['recalculate-interval-seconds']
         add_property_int(self, "max-volume-level", parent_node_id="config").value = self.max_volume
-
-        self.start()
-        scheduler.add_job(self.run, 'interval', seconds=config['recalculate-interval-seconds'])
         self.property_enabled.value = True
 
-    def accept_message(self, topic, payload):
-        if topic == 'homie/sony-bravia/volume/volume-level':
-            self.logger.debug("Message received: %-70s | %s" % (topic, payload))
-            self.volume = int(payload)
+        scheduler.add_job(self.run, 'interval', seconds=config['recalculate-interval-seconds'])
 
     def run(self):
         self.property_enabled.value = self.is_enabled
-        if self.is_enabled and self.volume > self.max_volume:
+        if self.is_enabled and self.volume.value > self.max_volume:
             self.logger.info("Setting TV volume to %s" % self.max_volume)
             self.publisher.publish('homie/sony-bravia/volume/volume-level/set', self.max_volume)
 
