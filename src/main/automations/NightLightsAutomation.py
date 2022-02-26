@@ -1,5 +1,3 @@
-import logging
-
 from apscheduler.schedulers.base import BaseScheduler
 from apscheduler.triggers.cron import CronTrigger
 
@@ -11,54 +9,40 @@ class NightLightsAutomation(Automation):
     def __init__(self, mqtt_settings, config, scheduler: BaseScheduler, publisher: Publisher):
         super().__init__("night-lights-automation", "Turn on and off night lights", mqtt_settings)
         self.publisher = publisher
-        self.logger = logging.getLogger("NightLightsAutomation")
 
-        self.groups = config['groups']
+        self.turn_on_topics = config['turn-on']['topics']
+        self.turn_off_topics = config['turn-off']['topics']
 
-        self.is_enabled = True
+        self.property_enabled = add_property_boolean(self, "enabled", parent_node_id="service", set_handler=self.set_enabled)
+        add_property_string(self, "on-schedule", parent_node_id="config").value = config['turn-on']['schedule']
+        add_property_string(self, "off-schedule", parent_node_id="config").value = config['turn-off']['schedule']
+        add_property_string(self, "on-topics", parent_node_id="config").value = str(self.turn_on_topics)
+        add_property_string(self, "off-topics", parent_node_id="config").value = str(self.turn_off_topics)
 
-        self.property_enabled = add_property_boolean(self, "enabled",
-                                                     parent_node_id="service",
-                                                     set_handler=self.set_enabled)
-        add_property_string(self, "on-schedule", parent_node_id="config").value = config['on-schedule']
-        add_property_string(self, "off-schedule", parent_node_id="config").value = config['off-schedule']
-        add_property_string(self, "lights", parent_node_id="config").value = str(self.groups)
-
-        add_property_boolean(self, "run-on-now",
-                             property_name="Turn on now",
-                             parent_node_id="service",
-                             retained=False,
-                             set_handler=self.run_on_now)
-        add_property_boolean(self, "run-off-now",
-                             property_name="Turn off now",
-                             parent_node_id="service",
-                             retained=False,
-                             set_handler=self.run_off_now)
-
-        scheduler.add_job(self.run_on, CronTrigger.from_crontab(config['on-schedule']))
-        scheduler.add_job(self.run_off, CronTrigger.from_crontab(config['off-schedule']))
+        add_property_boolean(self, "run-on-now", property_name="Turn on now", parent_node_id="service", retained=False, set_handler=self.turn_on_now)
+        add_property_boolean(self, "run-off-now", property_name="Turn off now", parent_node_id="service", retained=False, set_handler=self.turn_off_now)
         self.property_enabled.value = True
 
-    def run_on(self):
-        self.property_enabled.value = self.is_enabled
-        self.run_on_now(True)
+        scheduler.add_job(self.turn_on, CronTrigger.from_crontab(config['turn-on']['schedule'], "Europe/Warsaw"))
+        scheduler.add_job(self.turn_off, CronTrigger.from_crontab(config['turn-off']['schedule'], "Europe/Warsaw"))
 
-    def run_off(self):
-        self.property_enabled.value = self.is_enabled
-        self.run_off_now(True)
+    def turn_on(self):
+        self.turn_on_now(True)
+
+    def turn_off(self):
+        self.turn_off_now(True)
 
     def set_enabled(self, enabled):
-        self.logger.info("Setting enabled to %s" % self.is_enabled)
-        self.is_enabled = bool(enabled)
+        self.logger.info("Setting enabled to %s" % enabled)
 
-    def run_on_now(self, value):
+    def turn_on_now(self, value):
         if value:
-            for group_id in self.groups:
-                self.logger.info("Turning on group %s" % group_id)
-                self.publisher.publish("homie/philips-hue/%s/ison/set" % group_id, "true")
+            for topic in self.turn_on_topics:
+                self.logger.info("Turning on group %s" % topic)
+                self.publisher.publish("homie/philips-hue/%s/ison/set" % topic, "true")
 
-    def run_off_now(self, value):
+    def turn_off_now(self, value):
         if value:
-            for group_id in self.groups:
-                self.logger.info("Turning off group %s" % group_id)
-                self.publisher.publish("homie/philips-hue/%s/ison/set" % group_id, "false")
+            for topic in self.turn_off_topics:
+                self.logger.info("Turning off group %s" % topic)
+                self.publisher.publish("homie/philips-hue/%s/ison/set" % topic, "false")
