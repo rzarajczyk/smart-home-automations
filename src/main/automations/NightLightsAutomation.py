@@ -27,10 +27,12 @@ class NightLightsAutomation(Automation):
         scheduler.add_job(self.turn_off, CronTrigger.from_crontab(config['turn-off']['schedule'], "Europe/Warsaw"))
 
     def turn_on(self):
-        self.turn_on_now(True)
+        if self.property_enabled.value:
+            self.turn_on_now(True)
 
     def turn_off(self):
-        self.turn_off_now(True)
+        if self.property_enabled.value:
+            self.turn_off_now(True)
 
     def set_enabled(self, enabled):
         self.logger.info("Setting enabled to %s" % enabled)

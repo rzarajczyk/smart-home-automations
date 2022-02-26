@@ -8,7 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from automations.AirHumidifierAutomation import AirHumidifierAutomation
 from automations.AirPurifierAutomation import AirPurifierAutomation
 from automations.Automation import Publisher
-from automations.EveningLightsAutomation import EveningLightsAutomation
+from automations.EveningColorTemperatureAutomation import EveningColorTemperatureAutomation
 from automations.NightLightsAutomation import NightLightsAutomation
 from automations.TvRebootAutomation import TvRebootAutomation
 from automations.TvTimeToSleepAutomation import TvTimeToSleepAutomation
@@ -61,7 +61,7 @@ CLASSES = {
     'tv-volume': TvVolumeAutomation,
     'tv-time-to-sleep': TvTimeToSleepAutomation,
     'tv-reboot': TvRebootAutomation,
-    'evening-lights': EveningLightsAutomation,
+    'evening-lights': EveningColorTemperatureAutomation,
     'night-lights': NightLightsAutomation
 }
 AUTOMATIONS = []
