@@ -1,6 +1,4 @@
 import logging
-import os
-import shutil
 from logging import config as logging_config
 
 import paho.mqtt.client as mqtt
@@ -10,22 +8,14 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from automations.AirHumidifierAutomation import AirHumidifierAutomation
 from automations.AirPurifierAutomation import AirPurifierAutomation
 from automations.Automation import Publisher
-from automations.EveningLightsAutomation import EveningLightsAutomation
-from automations.NightLightsAutomation import NightLightsAutomation
 from automations.TvRebootAutomation import TvRebootAutomation
 from automations.TvTimeToSleepAutomation import TvTimeToSleepAutomation
 from automations.TvVolumeAutomation import TvVolumeAutomation
 
-ROOT = os.environ.get('APP_ROOT', ".")
-
 ########################################################################################################################
 # logging configuration
 
-LOGGER_CONFIGURATION = "%s/config/logging.yaml" % ROOT
-if not os.path.isfile(LOGGER_CONFIGURATION):
-    shutil.copy("%s/config-defaults/logging.yaml" % ROOT, LOGGER_CONFIGURATION)
-
-with open(LOGGER_CONFIGURATION, 'r') as f:
+with open('logging.yaml', 'r') as f:
     config = yaml.full_load(f)
     logging_config.dictConfig(config)
 
@@ -34,11 +24,7 @@ LOGGER = logging.getLogger("main")
 ########################################################################################################################
 # application configuration
 
-CONFIGURATION = "%s/config/application.yaml" % ROOT
-if not os.path.isfile(CONFIGURATION):
-    shutil.copy("%s/config-defaults/application.yaml" % ROOT, CONFIGURATION)
-
-with open(CONFIGURATION, 'r') as f:
+with open('config/smart-home-automations.yaml', 'r') as f:
     config = yaml.full_load(f)
 
     MQTT_HOST = config['mqtt']['host']
@@ -67,15 +53,29 @@ client.connect(MQTT_HOST, MQTT_PORT)
 
 scheduler = BackgroundScheduler(timezone="Europe/Warsaw")
 
-AUTOMATIONS = [
-    AirPurifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-purifier'], scheduler, publisher),
-    AirHumidifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-humidifier'], scheduler, publisher),
-    TvVolumeAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-volume'], scheduler, publisher),
-    TvTimeToSleepAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-time-to-sleep'], scheduler, publisher),
-    TvRebootAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-reboot'], scheduler, publisher),
-    EveningLightsAutomation(MQTT_SETTINGS, SERVICES_CONFIG['evening-lights'], scheduler, publisher),
-    NightLightsAutomation(MQTT_SETTINGS, SERVICES_CONFIG['night-lights'], scheduler, publisher),
-]
+CLASSES = {
+    'air-purifier': AirPurifierAutomation,
+    'air-humidifier': AirHumidifierAutomation,
+    'tv-volume': TvVolumeAutomation,
+    'tv-time-to-sleep': TvTimeToSleepAutomation,
+    'tv-reboot': TvRebootAutomation
+}
+AUTOMATIONS = []
+
+for key in CLASSES:
+    if key in SERVICES_CONFIG:
+        automation_class = SERVICES_CONFIG[key]
+        AUTOMATIONS.append(automation_class(MQTT_SETTINGS, SERVICES_CONFIG[key], scheduler, publisher))
+
+# AUTOMATIONS = [
+#     AirPurifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-purifier'], scheduler, publisher),
+#     AirHumidifierAutomation(MQTT_SETTINGS, SERVICES_CONFIG['air-humidifier'], scheduler, publisher),
+#     TvVolumeAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-volume'], scheduler, publisher),
+#     TvTimeToSleepAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-time-to-sleep'], scheduler, publisher),
+#     TvRebootAutomation(MQTT_SETTINGS, SERVICES_CONFIG['tv-reboot'], scheduler, publisher),
+#     # EveningLightsAutomation(MQTT_SETTINGS, SERVICES_CONFIG['evening-lights'], scheduler, publisher),
+#     NightLightsAutomation(MQTT_SETTINGS, SERVICES_CONFIG['night-lights'], scheduler, publisher),
+# ]
 
 LOGGER.info('All created services:')
 for automation in AUTOMATIONS:

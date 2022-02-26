@@ -52,13 +52,13 @@ class EveningLightsAutomation(Automation):
 
     def run_now(self, value):
         if value:
-            for group in self.groups:
-                if group in self.groups_on \
-                        and self.groups_on[group] \
-                        and group in self.groups_bri \
-                        and self.groups_bri[group] > 90:
+            for group_id in self.groups:
+                if group_id in self.groups_on \
+                        and self.groups_on[group_id] \
+                        and group_id in self.groups_bri \
+                        and self.groups_bri[group_id] > 90:
                     value = "%s,%s" % (self.target, self.duration)
-                    self.publisher.publish("homie/philips-hue/%s/color-temperature-transition/set", value)
+                    self.publisher.publish("homie/philips-hue/%s/color-temperature-transition/set" % group_id, value)
 
     def accept_message(self, topic, payload):
         for group in self.groups:

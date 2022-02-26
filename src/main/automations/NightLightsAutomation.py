@@ -54,10 +54,12 @@ class NightLightsAutomation(Automation):
 
     def run_on_now(self, value):
         if value:
-            for group in self.groups:
-                self.publisher.publish("homie/philips-hue/%s/ison/set" % group, "true")
+            for group_id in self.groups:
+                self.logger.info("Turning on group %s" % group_id)
+                self.publisher.publish("homie/philips-hue/%s/ison/set" % group_id, "true")
 
     def run_off_now(self, value):
         if value:
-            for group in self.groups:
-                self.publisher.publish("homie/philips-hue/%s/ison/set" % group, "false")
+            for group_id in self.groups:
+                self.logger.info("Turning off group %s" % group_id)
+                self.publisher.publish("homie/philips-hue/%s/ison/set" % group_id, "false")
