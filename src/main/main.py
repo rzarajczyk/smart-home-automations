@@ -10,6 +10,7 @@ from automations.AirPurifierAutomation import AirPurifierAutomation
 from automations.Automation import Publisher
 from automations.EveningColorTemperatureAutomation import EveningColorTemperatureAutomation
 from automations.NightLightsAutomation import NightLightsAutomation
+from automations.PrinterRebootAutomation import PrinterRebootAutomation
 from automations.TvRebootAutomation import TvRebootAutomation
 from automations.TvTimeToSleepAutomation import TvTimeToSleepAutomation
 from automations.TvVolumeAutomation import TvVolumeAutomation
@@ -62,7 +63,8 @@ CLASSES = {
     'tv-time-to-sleep': TvTimeToSleepAutomation,
     'tv-reboot': TvRebootAutomation,
     'evening-lights': EveningColorTemperatureAutomation,
-    'night-lights': NightLightsAutomation
+    'night-lights': NightLightsAutomation,
+    'printer-reboot': PrinterRebootAutomation
 }
 AUTOMATIONS = []
 

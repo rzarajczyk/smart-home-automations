@@ -10,8 +10,6 @@ class TvRebootAutomation(Automation):
         super().__init__("tv-reboot-automation", "TV Reboot", mqtt_settings)
         self.publisher = publisher
 
-        self.is_enabled = True
-
         self.property_enabled = add_property_boolean(self, "enabled",
                                                      parent_node_id="service",
                                                      set_handler=self.set_enabled)
@@ -26,12 +24,11 @@ class TvRebootAutomation(Automation):
         scheduler.add_job(self.run, CronTrigger.from_crontab(config['schedule'], "Europe/Warsaw"))
 
     def run(self):
-        self.property_enabled.value = self.is_enabled
-        self.run_now(True)
+        if self.property_enabled.value:
+            self.run_now(True)
 
     def set_enabled(self, enabled):
-        self.logger.info("Setting enabled to %s" % self.is_enabled)
-        self.is_enabled = bool(enabled)
+        self.logger.info("Setting enabled to %s" % enabled)
 
     def run_now(self, value):
         if value:

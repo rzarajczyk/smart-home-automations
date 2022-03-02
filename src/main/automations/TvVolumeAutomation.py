@@ -11,7 +11,6 @@ class TvVolumeAutomation(Automation):
 
         self.max_volume = config['max-volume-level']
 
-        self.is_enabled = True
         self.volume = self.mqtt_collect('homie/sony-bravia/volume/volume-level', int)
 
         self.property_enabled = add_property_boolean(self, "enabled",
@@ -22,16 +21,13 @@ class TvVolumeAutomation(Automation):
                          parent_node_id="config",
                          unit="s").value = config['recalculate-interval-seconds']
         add_property_int(self, "max-volume-level", parent_node_id="config").value = self.max_volume
-        self.property_enabled.value = True
 
         scheduler.add_job(self.run, 'interval', seconds=config['recalculate-interval-seconds'])
 
     def run(self):
-        self.property_enabled.value = self.is_enabled
-        if self.is_enabled and self.volume.value > self.max_volume:
+        if self.property_enabled.value and self.volume.value > self.max_volume:
             self.logger.info("Setting TV volume to %s" % self.max_volume)
             self.publisher.publish('homie/sony-bravia/volume/volume-level/set', self.max_volume)
 
     def set_enabled(self, enabled):
-        self.logger.info("Setting enabled to %s" % self.is_enabled)
-        self.is_enabled = bool(enabled)
+        self.logger.info("Setting enabled to %s" % enabled)

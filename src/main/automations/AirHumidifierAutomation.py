@@ -10,7 +10,6 @@ class AirHumidifierAutomation(Automation):
         super().__init__("air-humidifier-automation", "Air Humidifier", mqtt_settings)
         self.publisher = publisher
 
-        self.is_enabled = True
         self.speed = self.mqtt_collect('homie/xiaomi-air-humidifier/speed/speed')
 
         self.property_enabled = add_property_boolean(self, "enabled",
@@ -22,11 +21,9 @@ class AirHumidifierAutomation(Automation):
         scheduler.add_job(self.run, CronTrigger.from_crontab(config['shutdown-schedule'], "Europe/Warsaw"))
 
     def run(self):
-        self.property_enabled.value = self.is_enabled
-        if self.is_enabled and self.speed.value != 'off':
+        if self.property_enabled.value and self.speed.value != 'off':
             self.logger.info("Setting humidifier speed to off")
             self.publisher.publish('homie/xiaomi-air-humidifier/speed/speed/set', 'off')
 
     def set_enabled(self, enabled):
-        self.logger.info("Setting enabled to %s" % self.is_enabled)
-        self.is_enabled = bool(enabled)
+        self.logger.info("Setting enabled to %s" % enabled)

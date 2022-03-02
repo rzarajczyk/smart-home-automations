@@ -12,8 +12,7 @@ class TvTimeToSleepAutomation(Automation):
 
         self.url = config['image-url']
 
-        self.is_enabled = True
-        self.tv_is_on = self.mqtt_collect('homie/sony-bravia/power/power-status', lambda value: value == 'active')
+        self.tv_is_on = self.mqtt_collect('homie/sony-bravia/power/ison', bool)
 
         self.property_enabled = add_property_boolean(self, "enabled",
                                                      parent_node_id="service",
@@ -25,18 +24,15 @@ class TvTimeToSleepAutomation(Automation):
                              set_handler=self.run_now)
         add_property_string(self, "schedule", parent_node_id="config").value = config['schedule']
         add_property_string(self, "url", parent_node_id="config").value = config['image-url']
-        self.property_enabled.value = True
 
         scheduler.add_job(self.run, CronTrigger.from_crontab(config['schedule'], "Europe/Warsaw"))
 
     def run(self):
-        self.property_enabled.value = self.is_enabled
-        if self.tv_is_on:
+        if self.property_enabled.value and self.tv_is_on:
             self.run_now(True)
 
     def set_enabled(self, enabled):
-        self.logger.info("Setting enabled to %s" % self.is_enabled)
-        self.is_enabled = bool(enabled)
+        self.logger.info("Setting enabled to %s" % enabled)
 
     def run_now(self, value):
         if value:

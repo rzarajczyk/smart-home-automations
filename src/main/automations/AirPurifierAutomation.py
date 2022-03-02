@@ -15,7 +15,6 @@ class AirPurifierAutomation(Automation):
 
         self.history = []
         self.current_threshold = 0
-        self.is_enabled = True
         self.pm25 = self.mqtt_collect('homie/xiaomi-air-monitor/status/pm25', int)
         self.monitor_is_on = self.mqtt_collect('homie/xiaomi-air-monitor/status/ison', bool)
         self.current_speed = self.mqtt_collect('homie/xiaomi-air-purifier/speed/speed')
@@ -32,13 +31,11 @@ class AirPurifierAutomation(Automation):
         scheduler.add_job(self.run, 'interval', seconds=config['recalculate-interval-seconds'])
 
     def run(self):
-        self.property_enabled.value = self.is_enabled
         self.property_history.value = str(self.history)
-        if self.is_enabled and self.monitor_is_on.value:
+        if self.property_enabled.value and self.monitor_is_on.value:
             self.recalculate_speed()
         else:
-            self.logger.info("Skipping AirPurifier recalculation - self.is_enabled = %s, monitor_is_on = %s" % (
-                self.is_enabled, self.monitor_is_on.value))
+            self.logger.info("Skipping AirPurifier recalculation - self.is_enabled = %s, monitor_is_on = %s" % (self.property_enabled.value, self.monitor_is_on.value))
 
     def recalculate_speed(self):
         self.history.append(self.pm25.value)
@@ -59,8 +56,7 @@ class AirPurifierAutomation(Automation):
             self.publisher.publish('homie/xiaomi-air-purifier/speed/speed/set', speed)
 
     def set_enabled(self, enabled):
-        self.logger.info("Setting enabled to %s" % self.is_enabled)
-        self.is_enabled = bool(enabled)
+        self.logger.info("Setting enabled to %s" % enabled)
 
 
 def calculate_threshold_index(avg, current_threshold, thresholds, hysteresis):
