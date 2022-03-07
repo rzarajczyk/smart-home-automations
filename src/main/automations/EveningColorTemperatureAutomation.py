@@ -20,7 +20,7 @@ class EveningColorTemperatureAutomation(Automation):
             self.groups_on[topic] = self.mqtt_collect('homie/philips-hue/%s/ison' % topic, bool)
             self.groups_bri[topic] = self.mqtt_collect('homie/philips-hue/%s/brightness' % topic, int)
 
-        self.property_enabled = add_property_boolean(self, "enabled", parent_node_id="service", set_handler=self.set_enabled)
+        self.property_enabled = add_property_boolean(self, "enabled", parent_node_id="service", set_handler=self.set_enabled, initial_value=True)
         add_property_string(self, "schedule", parent_node_id="config").value = config['schedule']
         add_property_string(self, "topics", parent_node_id="config").value = str(self.topics_to_change)
         add_property_int(self, "duration", unit="s", parent_node_id="config").value = self.duration
@@ -28,11 +28,13 @@ class EveningColorTemperatureAutomation(Automation):
         add_property_boolean(self, "run", property_name="Run now", parent_node_id="service", retained=False, set_handler=self.run_now)
 
         scheduler.add_job(self.run, CronTrigger.from_crontab(config['schedule']))
-        self.property_enabled.value = True
 
     def run(self):
-        if self.property_enabled.value:
+        enabled = self.property_enabled.value
+        if enabled:
             self.run_now(True)
+        else:
+            self.logger.warning('Evening Color Transormation skipped; enabled=%s' % enabled)
 
     def set_enabled(self, enabled):
         self.logger.info("Setting enabled to %s" % enabled)

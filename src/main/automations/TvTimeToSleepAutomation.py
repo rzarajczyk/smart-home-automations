@@ -16,7 +16,8 @@ class TvTimeToSleepAutomation(Automation):
 
         self.property_enabled = add_property_boolean(self, "enabled",
                                                      parent_node_id="service",
-                                                     set_handler=self.set_enabled)
+                                                     set_handler=self.set_enabled,
+                                                     initial_value=True)
         add_property_boolean(self, "run",
                              property_name="Run now",
                              parent_node_id="service",
@@ -28,8 +29,12 @@ class TvTimeToSleepAutomation(Automation):
         scheduler.add_job(self.run, CronTrigger.from_crontab(config['schedule'], "Europe/Warsaw"))
 
     def run(self):
-        if self.property_enabled.value and self.tv_is_on:
+        enabled = self.property_enabled.value
+        is_on = self.tv_is_on.val
+        if enabled and is_on:
             self.run_now(True)
+        else:
+            self.logger.warning('Time-To-Sleep skipped; enabled=%s, is_on=%s' % (enabled, is_on))
 
     def set_enabled(self, enabled):
         self.logger.info("Setting enabled to %s" % enabled)

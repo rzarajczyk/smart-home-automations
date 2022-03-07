@@ -75,7 +75,8 @@ def add_property_boolean(device: Device_Base,
                          parent_node_name: str = None,
                          set_handler=None,
                          retained: bool = True,
-                         unit=None) -> Property_Base:
+                         unit=None,
+                         initial_value: bool = None) -> Property_Base:
     property_name, node = _init(device, property_id, property_name, parent_node_id, parent_node_name)
     settable = set_handler is not None
     prop = Property_Boolean(node,
@@ -86,6 +87,8 @@ def add_property_boolean(device: Device_Base,
                             retained=retained,
                             set_value=set_handler)
     node.add_property(prop)
+    if initial_value is not None:
+        prop.value = initial_value
     return prop
 
 

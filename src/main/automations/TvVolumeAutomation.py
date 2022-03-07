@@ -16,7 +16,8 @@ class TvVolumeAutomation(Automation):
         self.property_enabled = add_property_boolean(self, "enabled",
                                                      property_name="Service is enabled",
                                                      parent_node_id="service",
-                                                     set_handler=self.set_enabled)
+                                                     set_handler=self.set_enabled,
+                                                     initial_value=True)
         add_property_int(self, "interval",
                          parent_node_id="config",
                          unit="s").value = config['recalculate-interval-seconds']
@@ -25,7 +26,9 @@ class TvVolumeAutomation(Automation):
         scheduler.add_job(self.run, 'interval', seconds=config['recalculate-interval-seconds'])
 
     def run(self):
-        if self.property_enabled.value and self.volume.value > self.max_volume:
+        enabled = self.property_enabled.value
+        current_col = self.volume.value
+        if enabled and current_col > self.max_volume:
             self.logger.info("Setting TV volume to %s" % self.max_volume)
             self.publisher.publish('homie/sony-bravia/volume/volume-level/set', self.max_volume)
 

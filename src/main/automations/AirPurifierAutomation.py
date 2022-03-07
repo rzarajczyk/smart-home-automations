@@ -19,23 +19,24 @@ class AirPurifierAutomation(Automation):
         self.monitor_is_on = self.mqtt_collect('homie/xiaomi-air-monitor/status/ison', bool)
         self.current_speed = self.mqtt_collect('homie/xiaomi-air-purifier/speed/speed')
 
-        self.property_enabled = add_property_boolean(self, "enabled", parent_node_id="service", set_handler=self.set_enabled)
+        self.property_enabled = add_property_boolean(self, "enabled", parent_node_id="service", set_handler=self.set_enabled, initial_value=True)
         add_property_int(self, "interval", parent_node_id="config", unit="s").value = config['recalculate-interval-seconds']
         add_property_int(self, "hysteresis", parent_node_id="config").value = self.hysteresis
         add_property_int(self, "history-size", parent_node_id="config").value = self.history_size
         add_property_string(self, "threshold-levels", parent_node_id="config").value = str([t['value'] for t in self.thresholds])
         add_property_string(self, "threshold-speeds", parent_node_id="config").value = str([t['speed'] for t in self.thresholds])
         self.property_history = add_property_string(self, "known-history", parent_node_id="service")
-        self.property_enabled.value = True
 
         scheduler.add_job(self.run, 'interval', seconds=config['recalculate-interval-seconds'])
 
     def run(self):
         self.property_history.value = str(self.history)
-        if self.property_enabled.value and self.monitor_is_on.value:
+        enabled = self.property_enabled.value
+        is_on = self.monitor_is_on.value
+        if enabled and is_on:
             self.recalculate_speed()
         else:
-            self.logger.info("Skipping AirPurifier recalculation - self.is_enabled = %s, monitor_is_on = %s" % (self.property_enabled.value, self.monitor_is_on.value))
+            self.logger.info("Skipping AirPurifier recalculation - self.is_enabled = %s, monitor_is_on = %s" % (enabled, is_on))
 
     def recalculate_speed(self):
         self.history.append(self.pm25.value)

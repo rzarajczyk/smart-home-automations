@@ -14,16 +14,20 @@ class AirHumidifierAutomation(Automation):
 
         self.property_enabled = add_property_boolean(self, "enabled",
                                                      parent_node_id="service",
-                                                     set_handler=self.set_enabled)
+                                                     set_handler=self.set_enabled,
+                                                     initial_value=True)
         add_property_string(self, "shutdown-schedule", parent_node_id="config").value = config['shutdown-schedule']
-        self.property_enabled.value = True
 
         scheduler.add_job(self.run, CronTrigger.from_crontab(config['shutdown-schedule'], "Europe/Warsaw"))
 
     def run(self):
-        if self.property_enabled.value and self.speed.value != 'off':
+        enabled = self.property_enabled.value
+        speed = self.speed.value
+        if enabled and speed != 'off':
             self.logger.info("Setting humidifier speed to off")
             self.publisher.publish('homie/xiaomi-air-humidifier/speed/speed/set', 'off')
+        else:
+            self.logger.warning('Shutdown skipped; enabled=%s, speed=%s' % (enabled, speed))
 
     def set_enabled(self, enabled):
         self.logger.info("Setting enabled to %s" % enabled)

@@ -12,20 +12,23 @@ class TvRebootAutomation(Automation):
 
         self.property_enabled = add_property_boolean(self, "enabled",
                                                      parent_node_id="service",
-                                                     set_handler=self.set_enabled)
+                                                     set_handler=self.set_enabled,
+                                                     initial_value=True)
         add_property_string(self, "schedule", parent_node_id="config").value = config['schedule']
         add_property_boolean(self, "run",
                              property_name="Run now",
                              parent_node_id="service",
                              retained=False,
                              set_handler=self.run_now)
-        self.property_enabled.value = True
 
         scheduler.add_job(self.run, CronTrigger.from_crontab(config['schedule'], "Europe/Warsaw"))
 
     def run(self):
-        if self.property_enabled.value:
+        enabled = self.property_enabled.value
+        if enabled:
             self.run_now(True)
+        else:
+            self.logger.warning('TV Reboot skipped; enabled=%s' % enabled)
 
     def set_enabled(self, enabled):
         self.logger.info("Setting enabled to %s" % enabled)

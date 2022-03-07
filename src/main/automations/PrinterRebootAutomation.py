@@ -13,7 +13,7 @@ class PrinterRebootAutomation(Automation):
         self.turn_on_topics = config['turn-on']['topics']
         self.turn_off_topics = config['turn-off']['topics']
 
-        self.property_enabled = add_property_boolean(self, "enabled", parent_node_id="service", set_handler=self.set_enabled)
+        self.property_enabled = add_property_boolean(self, "enabled", parent_node_id="service", set_handler=self.set_enabled, initial_value=True)
         add_property_string(self, "on-schedule", parent_node_id="config").value = config['turn-on']['schedule']
         add_property_string(self, "off-schedule", parent_node_id="config").value = config['turn-off']['schedule']
         add_property_string(self, "on-topics", parent_node_id="config").value = str(self.turn_on_topics)
@@ -21,18 +21,23 @@ class PrinterRebootAutomation(Automation):
 
         add_property_boolean(self, "run-on-now", property_name="Turn on now", parent_node_id="service", retained=False, set_handler=self.turn_on_now)
         add_property_boolean(self, "run-off-now", property_name="Turn off now", parent_node_id="service", retained=False, set_handler=self.turn_off_now)
-        self.property_enabled.value = True
 
         scheduler.add_job(self.turn_on, CronTrigger.from_crontab(config['turn-on']['schedule'], "Europe/Warsaw"))
         scheduler.add_job(self.turn_off, CronTrigger.from_crontab(config['turn-off']['schedule'], "Europe/Warsaw"))
 
     def turn_on(self):
-        if self.property_enabled.value:
+        enabled = self.property_enabled.value
+        if enabled:
             self.turn_on_now(True)
+        else:
+            self.logger.warning('Turn ON skipped; enabled=%s' % enabled)
 
     def turn_off(self):
-        if self.property_enabled.value:
+        enabled = self.property_enabled.value
+        if enabled:
             self.turn_off_now(True)
+        else:
+            self.logger.warning('Turn OFF skipped; enabled=%s' % enabled)
 
     def set_enabled(self, enabled):
         self.logger.info("Setting enabled to %s" % enabled)
