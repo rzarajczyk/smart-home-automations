@@ -32,7 +32,7 @@ class MqttCollector:
 class Automation(Device_Base):
     def __init__(self, device_id, name, mqtt_settings):
         super().__init__(device_id=device_id, name=name, mqtt_settings=mqtt_settings)
-        self.logger = logging.getLogger(name)
+        self.logger = logging.getLogger(device_id)
         self.mqtt_collectors: list[MqttCollector] = []
 
     def mqtt_collect(self, topic, type=str):

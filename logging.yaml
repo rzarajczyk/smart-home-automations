@@ -1,7 +1,7 @@
 version: 1
 root:
   handlers: ["stdout", "file"]
-  level: DEBUG
+  level: INFO
 loggers:
   "apscheduler.scheduler":
     level: WARN
