@@ -2,7 +2,7 @@ from apscheduler.schedulers.base import BaseScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from automations.Automation import Automation, Publisher
-from homie_helpers import add_property_boolean, add_property_string, add_property_int
+from homie_helpers import add_property_boolean, add_property_string, add_property_int, homie_bool
 
 
 class EveningColorTemperatureAutomation(Automation):
@@ -17,7 +17,7 @@ class EveningColorTemperatureAutomation(Automation):
         self.groups_on = {}
         self.groups_bri = {}
         for topic in self.topics_to_change:
-            self.groups_on[topic] = self.mqtt_collect('homie/philips-hue/%s/ison' % topic, bool)
+            self.groups_on[topic] = self.mqtt_collect('homie/philips-hue/%s/ison' % topic, homie_bool)
             self.groups_bri[topic] = self.mqtt_collect('homie/philips-hue/%s/brightness' % topic, int)
 
         self.property_enabled = add_property_boolean(self, "enabled", parent_node_id="service", set_handler=self.set_enabled, initial_value=True)
@@ -38,6 +38,8 @@ class EveningColorTemperatureAutomation(Automation):
 
     def set_enabled(self, enabled):
         self.logger.info("Setting enabled to %s" % enabled)
+        for topic in self.topics_to_change:
+            print("%s is %s" % (topic, self.groups_on[topic].value))
 
     def run_now(self, value):
         if value:

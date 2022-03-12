@@ -2,7 +2,7 @@ from apscheduler.schedulers.base import BaseScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from automations.Automation import Automation, Publisher
-from homie_helpers import add_property_boolean, add_property_string
+from homie_helpers import add_property_boolean, add_property_string, homie_bool
 
 
 class TvTimeToSleepAutomation(Automation):
@@ -12,7 +12,7 @@ class TvTimeToSleepAutomation(Automation):
 
         self.url = config['image-url']
 
-        self.tv_is_on = self.mqtt_collect('homie/sony-bravia/power/ison', lambda ison: ison == 'true')
+        self.tv_is_on = self.mqtt_collect('homie/sony-bravia/power/ison', homie_bool)
 
         self.property_enabled = add_property_boolean(self, "enabled",
                                                      parent_node_id="service",

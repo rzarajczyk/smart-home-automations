@@ -1,7 +1,7 @@
 from apscheduler.schedulers.base import BaseScheduler
 
 from automations.Automation import Automation, Publisher
-from homie_helpers import add_property_boolean, add_property_int, add_property_string
+from homie_helpers import add_property_boolean, add_property_int, add_property_string, homie_bool
 
 
 class AirPurifierAutomation(Automation):
@@ -16,7 +16,7 @@ class AirPurifierAutomation(Automation):
         self.history = []
         self.current_threshold = 0
         self.pm25 = self.mqtt_collect('homie/xiaomi-air-monitor/status/pm25', int)
-        self.monitor_is_on = self.mqtt_collect('homie/xiaomi-air-monitor/status/ison', bool)
+        self.monitor_is_on = self.mqtt_collect('homie/xiaomi-air-monitor/status/ison', homie_bool)
         self.current_speed = self.mqtt_collect('homie/xiaomi-air-purifier/speed/speed')
 
         self.property_enabled = add_property_boolean(self, "enabled", parent_node_id="service", set_handler=self.set_enabled, initial_value=True)

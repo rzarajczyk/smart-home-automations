@@ -130,3 +130,6 @@ def add_property_string(device: Device_Base,
                            set_value=set_handler)
     node.add_property(prop)
     return prop
+
+def homie_bool(value):
+    return value == 'true'
