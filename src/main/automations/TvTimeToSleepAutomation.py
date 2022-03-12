@@ -12,7 +12,7 @@ class TvTimeToSleepAutomation(Automation):
 
         self.url = config['image-url']
 
-        self.tv_is_on = self.mqtt_collect('homie/sony-bravia/power/ison', bool)
+        self.tv_is_on = self.mqtt_collect('homie/sony-bravia/power/ison', lambda ison: ison == 'true')
 
         self.property_enabled = add_property_boolean(self, "enabled",
                                                      parent_node_id="service",
@@ -30,7 +30,8 @@ class TvTimeToSleepAutomation(Automation):
 
     def run(self):
         enabled = self.property_enabled.value
-        is_on = self.tv_is_on.val
+        is_on = self.tv_is_on.value
+        print(is_on)
         if enabled and is_on:
             self.run_now(True)
         else:
