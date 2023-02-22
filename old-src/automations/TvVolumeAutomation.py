@@ -1,7 +1,7 @@
 from apscheduler.schedulers.base import BaseScheduler
 
 from automations.Automation import Automation, Publisher
-from homie_helpers import add_property_boolean, add_property_int
+from oldhomie_helpers import add_property_boolean, add_property_int
 
 
 class TvVolumeAutomation(Automation):

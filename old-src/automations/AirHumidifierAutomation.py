@@ -2,7 +2,7 @@ from apscheduler.schedulers.base import BaseScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from automations.Automation import Automation, Publisher
-from homie_helpers import add_property_boolean, add_property_string
+from oldhomie_helpers import add_property_boolean, add_property_string
 
 
 class AirHumidifierAutomation(Automation):

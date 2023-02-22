@@ -1,7 +1,7 @@
 from apscheduler.schedulers.base import BaseScheduler
 
 from automations.Automation import Automation, Publisher
-from homie_helpers import add_property_boolean, add_property_int, add_property_string, homie_bool
+from oldhomie_helpers import add_property_boolean, add_property_int, add_property_string, homie_bool
 
 
 class AirPurifierAutomation(Automation):
