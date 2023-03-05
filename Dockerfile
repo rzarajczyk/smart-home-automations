@@ -2,9 +2,7 @@ FROM python:3-slim
 
 WORKDIR /app
 
-ENV AUTOMATION $AUTOMATION
-
-COPY automations/$AUTOMATION/. .
+COPY . .
 
 RUN find .
 
