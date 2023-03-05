@@ -2,5 +2,5 @@ services:
   air-purifier-automation:
     image: rzarajczyk/automation-air-purifier
     build:
-      context: ./automations/air-purifier-automation
+      context: automations/automation-air-purifier
       dockerfile: ../../Dockerfile

@@ -9,6 +9,8 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    env:
+      AUTOMATION: automation-air-purifier
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -29,11 +31,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
-          working-directory: ./automations/air-purifier-automation
-          tags: rzarajczyk/automation-air-purifier:latest
-          push: true
+          tags: rzarajczyk/$AUTOMATION:latest
+          push: false
           platforms: linux/amd64,linux/arm64
-          file: ../../Dockerfile
           no-cache: true
 
       - name: Image digest
