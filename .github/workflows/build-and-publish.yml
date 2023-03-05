@@ -32,9 +32,5 @@ jobs:
           context: automation-air-purifier
           file: Dockerfile
           tags: rzarajczyk/automation-air-purifier:latest
-          push: false
+          push: true
           platforms: linux/amd64,linux/arm64
-          no-cache: true
-
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
