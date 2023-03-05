@@ -1,6 +1,0 @@
-services:
-  air-purifier-automation:
-    image: rzarajczyk/automation-air-purifier
-    build:
-      context: automations/automation-air-purifier
-      dockerfile: ../../Dockerfile
