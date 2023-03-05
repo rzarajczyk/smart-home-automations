@@ -29,10 +29,10 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
+          context: automations/air-purifier-automation
           tags: rzarajczyk/automation-air-purifier:latest
           push: true
           platforms: linux/amd64,linux/arm64
-          context: automations/air-purifier-automation
           file: ../../Dockerfile
 
       - name: Image digest
