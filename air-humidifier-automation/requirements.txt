@@ -1,0 +1,5 @@
+Homie4
+paho-mqtt~=1.6.1
+APScheduler==3.10.1
+service-bootstrap~=0.0.5
+homie-helpers==0.0.7
