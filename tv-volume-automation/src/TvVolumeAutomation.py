@@ -28,8 +28,8 @@ class TvVolumeAutomation:
 
     def run(self):
         enabled = self.property_enabled.value
-        current_col = self.volume.value
-        if enabled and current_col > self.max_volume:
+        current_vol = self.volume.value
+        if enabled and current_vol > self.max_volume:
             self.logger.info("Setting TV volume to %s" % self.max_volume)
             self.client.publish('homie/sony-bravia/volume/volume-level/set', self.max_volume)
 

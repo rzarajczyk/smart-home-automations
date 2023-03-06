@@ -29,7 +29,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
-          context: automation-air-purifier
+          context: air-purifier-automation
           file: Dockerfile
           tags: rzarajczyk/automation-air-purifier:latest
           push: true
